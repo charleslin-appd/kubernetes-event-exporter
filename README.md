@@ -449,7 +449,6 @@ curl -X POST "https://analytics.api.appdynamics.com:443/events/schema/K8sEvent" 
      "lastTimestamp": "date",
      "count": "string",
      "type": "string",
-     "eventTime": "string",
      "involvedObject_kind": "string",
      "involvedObject_namespace": "string",
      "involvedObject_name": "string",
@@ -464,27 +463,29 @@ curl -X POST "https://analytics.api.appdynamics.com:443/events/schema/K8sEvent" 
 Define the receiver in config.yaml
 ```yaml
 # ...
-appdynamics:
-  endpoint: "https://analytics.api.appdynamics.com:443/events/publish/K8sEvent"
-  headers:
-    X-Events-API-AccountName: "xxxxxxxxx"
-    X-Events-API-Key: "xxxxxxxx"
-    User-Agent: "kube-event-exporter 1.0"
-  layout:
-    reason: "{{ .Reason }}"
-    message: "{{ .Message }}"
-    source_component: "{{ .Source.Component }}"
-    source_host: "{{ .Source.Host }}"
-    firstTimestamp: "{{ .GetTimestampISO8601 }}"
-    #lastTimestamp: "{{ .LastTimestamp }}"  
-    count: "{{ .Count }}"
-    type: "{{ .Type }}"
-    involvedObject_kind: "{{ .InvolvedObject.Kind }}"
-    involvedObject_namespace: "{{ .InvolvedObject.Namespace }}"
-    involvedObject_name: "{{ .InvolvedObject.Name }}"
-    involvedObject_uid: "{{ .InvolvedObject.UID }}"
-    involvedObject_apiVersion: "{{ .InvolvedObject.APIVersion }}"
-    involvedObject_resourceVersion: "{{ .InvolvedObject.ResourceVersion }}"
-    involvedObject_fieldPath: "{{ .InvolvedObject.FieldPath }}"
-    involvedObject_labels: "{{ toJson .InvolvedObject.Labels}}"
+receivers:
+  - name: "pipe"
+    appdynamics:
+      endpoint: "https://analytics.api.appdynamics.com:443/events/publish/K8sEvent"
+      headers:
+        X-Events-API-AccountName: "xxxxxxxxx"
+        X-Events-API-Key: "xxxxxxxx"
+        User-Agent: "kube-event-exporter 1.0"
+      layout:
+        reason: "{{ .Reason }}"
+        message: "{{ .Message }}"
+        source_component: "{{ .Source.Component }}"
+        source_host: "{{ .Source.Host }}"
+        firstTimestamp: "{{ .GetTimestampISO8601 }}"
+        #lastTimestamp: "{{ .LastTimestamp }}"  
+        count: "{{ .Count }}"
+        type: "{{ .Type }}"
+        involvedObject_kind: "{{ .InvolvedObject.Kind }}"
+        involvedObject_namespace: "{{ .InvolvedObject.Namespace }}"
+        involvedObject_name: "{{ .InvolvedObject.Name }}"
+        involvedObject_uid: "{{ .InvolvedObject.UID }}"
+        involvedObject_apiVersion: "{{ .InvolvedObject.APIVersion }}"
+        involvedObject_resourceVersion: "{{ .InvolvedObject.ResourceVersion }}"
+        involvedObject_fieldPath: "{{ .InvolvedObject.FieldPath }}"
+        involvedObject_labels: "{{ toJson .InvolvedObject.Labels}}"
 ```
