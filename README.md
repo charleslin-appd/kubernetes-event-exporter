@@ -384,7 +384,7 @@ receivers:
 
 ```
 
-# BigQuery
+### BigQuery
 
 Google's query thing
 
@@ -403,7 +403,7 @@ receivers:
       timeout_seconds:
 ```
 
-# Pipe
+### Pipe
 
 pipe output directly into some file descriptor
 
@@ -414,7 +414,7 @@ receivers:
       path: "/dev/stdout"
 ```
 
-# AWS EventBridge
+### AWS EventBridge
 
 ```yaml
 receivers:
@@ -430,4 +430,61 @@ receivers:
        reason: "{{ .Reason }}"
        object: "{{ .Namespace }}"
 
+```
+### AppDynamics
+
+[AppDynamics](https://docs.appdynamics.com/) provides application performance monitoring and full stack observability for modern applications. This receiver ingests Kubernetes events into AppDynamics Analytics Event Store.
+
+Define the custom schema for Kubernetes events in AppDynamics using Events API:
+
+```sh
+curl -X POST "https://analytics.api.appdynamics.com:443/events/schema/K8sEvent" -H"X-Events-API-AccountName:xxxxxxxxxxxx" -H"X-Events-API-Key:xxxxxxxxxx" -H"Content-type: application/vnd.appd.events+json;v=2" -d '{
+   "eventType": "K8sEvent",
+   "schema": {
+     "reason": "string",
+     "message": "string",
+     "source_component": "string",
+     "source_host": "string",
+     "firstTimestamp": "date",
+     "lastTimestamp": "date",
+     "count": "string",
+     "type": "string",
+     "eventTime": "string",
+     "involvedObject_kind": "string",
+     "involvedObject_namespace": "string",
+     "involvedObject_name": "string",
+     "involvedObject_uid": "string",
+     "involvedObject_apiVersion": "string",
+     "involvedObject_resourceVersion": "string",
+     "involvedObject_fieldPath": "string",
+     "involvedObject_labels": "string"
+   }
+ }'
+```
+Define the receiver in config.yaml
+```yaml
+# ...
+webhook:
+  endpoint: "https://analytics.api.appdynamics.com:443/events/publish/K8sEvent"
+  headers:
+    X-Events-API-AccountName: "xxxxxxxxx"
+    X-Events-API-Key: "xxxxxxxx"
+    User-Agent: "kube-event-exporter 1.0"
+  layout:
+    reason: "{{ .Reason }}"
+    message: "{{ .Message }}"
+    source_component: "{{ .Source.Component }}"
+    source_host: "{{ .Source.Host }}"
+    firstTimestamp: "{{ .GetTimestampISO8601 }}"
+    #lastTimestamp: "{{ .LastTimestamp }}"  
+    count: "{{ .Count }}"
+    type: "{{ .Type }}"
+    involvedObject_kind: "{{ .InvolvedObject.Kind }}"
+    involvedObject_namespace: "{{ .InvolvedObject.Namespace }}"
+    involvedObject_name: "{{ .InvolvedObject.Name }}"
+    involvedObject_uid: "{{ .InvolvedObject.UID }}"
+    involvedObject_apiVersion: "{{ .InvolvedObject.APIVersion }}"
+    involvedObject_resourceVersion: "{{ .InvolvedObject.ResourceVersion }}"
+    involvedObject_fieldPath: "{{ .InvolvedObject.FieldPath }}"
+    involvedObject_labels: "{{ toJson .InvolvedObject.Labels}}"
 ```
