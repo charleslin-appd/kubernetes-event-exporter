@@ -464,7 +464,7 @@ curl -X POST "https://analytics.api.appdynamics.com:443/events/schema/K8sEvent" 
 Define the receiver in config.yaml
 ```yaml
 # ...
-webhook:
+appdynamics:
   endpoint: "https://analytics.api.appdynamics.com:443/events/publish/K8sEvent"
   headers:
     X-Events-API-AccountName: "xxxxxxxxx"
