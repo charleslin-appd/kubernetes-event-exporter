@@ -24,6 +24,7 @@ type ReceiverConfig struct {
 	BigQuery      *BigQueryConfig      `yaml:"bigquery"`
 	EventBridge   *EventBridgeConfig   `yaml:"eventbridge"`
 	Pipe          *PipeConfig          `yaml:"pipe"`
+	AppDynamics   *AppDynamicsConfig   `yaml:"appdynamics"`
 }
 
 func (r *ReceiverConfig) Validate() error {
@@ -112,5 +113,8 @@ func (r *ReceiverConfig) GetSink() (Sink, error) {
 		return NewEventBridgeSink(r.EventBridge)
 	}
 
+	if r.AppDynamics != nil {
+		return NewAppDynamicsSink(r.AppDynamics)
+	}
 	return nil, errors.New("unknown sink")
 }
