@@ -18,19 +18,19 @@ type AppDynamicsConfig struct {
 	Headers  map[string]string      `yaml:"headers"`
 }
 
-func NewAppDynamics(cfg *AppDynamicsConfig) (Sink, error) {
-	return &AppDynamics{cfg: cfg}, nil
+func NewAppDynamicsSink(cfg *AppDynamicsConfig) (Sink, error) {
+	return &AppDynamicsSink{cfg: cfg}, nil
 }
 
-type AppDynamics struct {
+type AppDynamicsSink struct {
 	cfg *AppDynamicsConfig
 }
 
-func (w *AppDynamics) Close() {
+func (w *AppDynamicsSink) Close() {
 	// No-op
 }
 
-func (w *AppDynamics) Send(ctx context.Context, ev *kube.EnhancedEvent) error {
+func (w *AppDynamicsSink) Send(ctx context.Context, ev *kube.EnhancedEvent) error {
 	serializedLayout, err := serializeEventWithLayout(w.cfg.Layout, ev)
 	if err != nil {
 		return err
