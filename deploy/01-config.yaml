@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: event-exporter-cfg
-  namespace: monitoring
+  namespace: appdynamics
 data:
   config.yaml: |
     logLevel: error
@@ -11,6 +11,34 @@ data:
       routes:
         - match:
             - receiver: "dump"
+            - receiver: "pipe"
     receivers:
       - name: "dump"
         stdout: {}
+      - name: "pipe"
+        appdynamics:
+          endpoint: "https://analytics.api.appdynamics.com:443/events/publish/K8sEvent"
+          headers:
+            X-Events-API-AccountName: "xxxxxxxxxxxxxx"
+            X-Events-API-Key: "xxxxxxxxxxxxxxxx"
+            User-Agent: "kube-event-exporter 1.0"
+          layout:
+            reason: "{{ .Reason }}"
+            message: "{{ .Message }}"
+            source_component: "{{ .Source.Component }}"
+            source_host: "{{ .Source.Host }}"
+            firstTimestamp: "{{ .GetTimestampISO8601 }}"
+            #lastTimestamp: "{{ .LastTimestamp }}"
+            count: "{{ .Count }}"
+            type: "{{ .Type }}"
+            #eventTime: "{{ .EventTime }}"
+            #reportingComponent: "{{ .ReportingComponent }}"
+            #reportingInstance: "{{ .ReportingInstance }}"
+            involvedObject_kind: "{{ .InvolvedObject.Kind }}"
+            involvedObject_namespace: "{{ .InvolvedObject.Namespace }}"
+            involvedObject_name: "{{ .InvolvedObject.Name }}"
+            involvedObject_uid: "{{ .InvolvedObject.UID }}"
+            involvedObject_apiVersion: "{{ .InvolvedObject.APIVersion }}"
+            involvedObject_resourceVersion: "{{ .InvolvedObject.ResourceVersion }}"
+            involvedObject_fieldPath: "{{ .InvolvedObject.FieldPath }}"
+            involvedObject_labels: "{{ toJson .InvolvedObject.Labels}}"
